@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Habilitar CORS
 app.use(cors({
-    origin: 'http://localhost:5173', // Permitir solicitudes desde el frontend
+    origin: process.env.CLIENT_URL, // Permitir solicitudes desde el frontend
     methods: ['GET', 'POST'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'] // Encabezados permitidos
 }));

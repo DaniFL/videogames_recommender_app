@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const { poolPromise } = require('../config/db');
 const router = express.Router();
+const tableName = process.env.DB_TABLE;
 
 // Método GET para renderizar la página de registro
 router.get('/', (req, res) => {
@@ -20,7 +21,7 @@ router.post('/', async (req, res) => {
         const pool = await poolPromise;
         const userCheck = await pool.request()
             .input('email', email)
-            .query('SELECT * FROM Usuarios WHERE email = @email');
+            .query(`SELECT * FROM ${tableName} WHERE email = @email`);
 
         if (userCheck.recordset.length > 0) {
             return res.status(400).json({ message: 'El email ya está registrado' });
@@ -31,7 +32,7 @@ router.post('/', async (req, res) => {
             .input('username', username)
             .input('email', email)
             .input('password', hashedPassword)
-            .query('INSERT INTO Usuarios (username, email, password) VALUES (@username, @email, @password)');
+            .query(`INSERT INTO ${tableName} (username, email, password) VALUES (@username, @email, @password)`);
 
         res.status(201).json({ message: 'Usuario registrado exitosamente' });
     } catch (error) {
@@ -52,7 +53,7 @@ router.post('/check-username', async (req, res) => {
         const pool = await poolPromise;
         const userCheck = await pool.request()
             .input('username', username)
-            .query('SELECT * FROM Usuarios WHERE username = @username');
+            .query(`SELECT * FROM ${tableName} WHERE username = @username`);
 
         const isAvailable = userCheck.recordset.length === 0;
         res.json({ available: isAvailable });

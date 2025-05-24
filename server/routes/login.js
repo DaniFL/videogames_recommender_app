@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { poolPromise } = require('../config/db');
 const router = express.Router();
+const tableName = process.env.DB_TABLE;
 
 // Método GET para renderizar la página de inicio de sesión
 router.get('/', (req, res) => {
@@ -21,7 +22,7 @@ router.post('/', async (req, res) => {
         const pool = await poolPromise;
         const userCheck = await pool.request()
             .input('email', email)
-            .query('SELECT * FROM Usuarios WHERE email = @email');
+            .query(`SELECT * FROM ${tableName} WHERE email = @email`);
 
         if (userCheck.recordset.length === 0) {
             return res.status(401).json({ message: 'Credenciales incorrectas' });

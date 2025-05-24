@@ -3,16 +3,25 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const cors = require('cors');
 // const session = require('express-session');
 
 const indexRouter = require('./routes/index');
 const registerRouter = require('./routes/register');
 const loginRouter = require('./routes/login');
+const { poolPromise } = require('./config/db');
 
 const app = express();
 
 // Middleware para parsear JSON
 app.use(express.json());
+
+// Habilitar CORS
+app.use(cors({
+    origin: 'http://localhost:5173', // Permitir solicitudes desde el frontend
+    methods: ['GET', 'POST'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'] // Encabezados permitidos
+}));
 
 // view engine setup
  app.set('views', path.join(__dirname, 'views'));
@@ -42,6 +51,13 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+// Verificar la conexión a la base de datos al iniciar el servidor
+poolPromise.then(async (pool) => {
+    console.log('Conexión a la base de datos verificada');
+}).catch(err => {
+    console.error('Error al verificar la conexión a la base de datos:', err);
 });
 
 module.exports = app;

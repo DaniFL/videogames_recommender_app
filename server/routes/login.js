@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { poolPromise } = require('../config/db');
 const router = express.Router();
 
 // Método GET para renderizar la página de inicio de sesión
@@ -10,25 +11,34 @@ router.get('/', (req, res) => {
 
 // Ruta para iniciar sesión
 router.post('/', async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
+    if (!email || !password) {
         return res.status(400).json({ message: 'Faltan datos' });
     }
 
     try {
-        // Aquí buscarías el usuario en la base de datos (simulado)
-        const user = { username, password: '$2b$10$examplehashedpassword' }; // Contraseña simulada
+        const pool = await poolPromise;
+        const userCheck = await pool.request()
+            .input('email', email)
+            .query('SELECT * FROM Usuarios WHERE email = @email');
 
+        if (userCheck.recordset.length === 0) {
+            return res.status(401).json({ message: 'Credenciales incorrectas' });
+        }
+
+        const user = userCheck.recordset[0];
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
             return res.status(401).json({ message: 'Credenciales incorrectas' });
         }
 
-        const token = jwt.sign({ username: user.username }, 'secret_key', { expiresIn: '1h' });
+        const token = jwt.sign({ username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ message: 'Inicio de sesión exitoso', token });
     } catch (error) {
-        res.status(500).json({ message: 'Error al iniciar sesión' });
+        console.error('Error al iniciar sesión:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
 });
 

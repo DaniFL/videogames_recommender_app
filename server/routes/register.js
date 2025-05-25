@@ -4,10 +4,11 @@ const { poolPromise } = require('../config/db');
 const router = express.Router();
 const tableName = process.env.DB_TABLE;
 
-// Método GET para renderizar la página de registro
+/* Método GET para renderizar la página de registro
 router.get('/', (req, res) => {
     res.send('Página de registro');
 });
+*/
 
 // Ruta para registrar usuarios
 router.post('/', async (req, res) => {

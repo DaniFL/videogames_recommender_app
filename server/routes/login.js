@@ -5,10 +5,11 @@ const { poolPromise } = require('../config/db');
 const router = express.Router();
 const tableName = process.env.DB_TABLE;
 
-// Método GET para renderizar la página de inicio de sesión
+/* Método GET para renderizar la página de inicio de sesión
 router.get('/', (req, res) => {
     res.send('Página de inicio de sesión');
 });
+*/
 
 // Ruta para iniciar sesión
 router.post('/', async (req, res) => {

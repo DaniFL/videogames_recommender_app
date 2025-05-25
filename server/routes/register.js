@@ -59,8 +59,8 @@ router.post('/check-username', async (req, res) => {
         const isAvailable = userCheck.recordset.length === 0;
         res.json({ available: isAvailable });
     } catch (error) {
-        console.error('Error al verificar el nombre de usuario:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+        console.error('Error al verificar el nombre de usuario:', error); // Log detailed error
+        res.status(500).json({ message: 'Error interno del servidor', error: error.message });
     }
 });
 

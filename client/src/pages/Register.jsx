@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,6 +33,7 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({ username: '', email: '', password: '' });
+    const navigate = useNavigate();
 
     const handleBlur = async (field) => {
         if (field === 'username') {
@@ -73,6 +74,7 @@ const Register = () => {
 
                 if (response.ok) {
                     alert(data.message);
+                    navigate('/user-home');
                 } else {
                     alert(data.message);
                 }

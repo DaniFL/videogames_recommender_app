@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
             return res.status(401).json({ message: 'Credenciales incorrectas' });
         }
 
-        const token = jwt.sign({ username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user.id, username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ message: 'Inicio de sesión exitoso', token });
     } catch (error) {
         console.error('Error al iniciar sesión:', error);

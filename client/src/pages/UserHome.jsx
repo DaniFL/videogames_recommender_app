@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 const UserHome = () => {
     const [avatar, setAvatar] = useState(null);
@@ -48,39 +49,47 @@ const UserHome = () => {
     };
 
     return (
-        <div className="fixed inset-0 min-h-screen min-w-full flex flex-col bg-gray-100">
-            <nav className="flex justify-between items-center p-6 bg-black bg-opacity-50 w-full">
-                <h1 className="text-3xl font-bold text-indigo-500">GameRecommender</h1>
-                <div className="space-x-4">
-                    <Link to="/user-home" className="text-lg text-indigo-500 hover:text-indigo-300 font-semibold transition duration-300 ease-in-out transform hover:scale-105">Inicio</Link>
-                    <Link to="/user-settings" className="text-lg text-indigo-500 hover:text-indigo-300 font-semibold transition duration-300 ease-in-out transform hover:scale-105">Configuración</Link>
-                    <Link to="/" className="text-lg text-indigo-500 hover:text-indigo-300 font-semibold transition duration-300 ease-in-out transform hover:scale-105">Cerrar Sesión</Link>
-                </div>
-            </nav>
-            <main className="flex-grow container mx-auto px-4 py-8">
-                <h2 className="text-3xl font-bold mb-4">Tu Página de Inicio</h2>
-                <p className="text-gray-700">Aquí puedes explorar tus videojuegos favoritos, recomendaciones personalizadas y mucho más.</p>
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Aquí se pueden mostrar tarjetas de videojuegos o contenido personalizado */}
-                    <div className="bg-white shadow-md rounded-lg p-4">
-                        <h3 className="text-xl font-bold">Juego 1</h3>
-                        <p className="text-gray-600">Descripción breve del juego.</p>
+        <div className="relative flex size-full min-h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden" style={{ fontFamily: 'Plus Jakarta Sans, Noto Sans, sans-serif' }}>
+            <Navbar isAuthenticated={true} />
+            <div className="layout-container flex h-full grow flex-col">
+                <div className="px-40 flex flex-1 justify-center py-5">
+                    <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
+                        <h2 className="text-white tracking-light text-[28px] font-bold leading-tight px-4 text-left pb-3 pt-5">¡Hola, Usuario!</h2>
+                        <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Recomendaciones para ti</h2>
+                        <div className="flex overflow-y-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                            <div className="flex items-stretch p-4 gap-3">
+                                {/* Example recommendation cards */}
+                                <div className="flex h-full flex-1 flex-col gap-4 rounded-lg min-w-60">
+                                    <div className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl flex flex-col" style={{ backgroundImage: `url('https://example.com/image1.jpg')` }}></div>
+                                    <div>
+                                        <p className="text-white text-base font-medium leading-normal">El Legado de la Estrella</p>
+                                        <p className="text-[#9cabba] text-sm font-normal leading-normal">RPG de acción</p>
+                                    </div>
+                                </div>
+                                <div className="flex h-full flex-1 flex-col gap-4 rounded-lg min-w-60">
+                                    <div className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl flex flex-col" style={{ backgroundImage: `url('https://example.com/image2.jpg')` }}></div>
+                                    <div>
+                                        <p className="text-white text-base font-medium leading-normal">Cazadores de la Noche</p>
+                                        <p className="text-[#9cabba] text-sm font-normal leading-normal">Aventura de mundo abierto</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Popular ahora</h2>
+                        <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+                            {/* Example popular cards */}
+                            <div className="flex flex-col gap-3 pb-3">
+                                <div className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl" style={{ backgroundImage: `url('https://example.com/popular1.jpg')` }}></div>
+                                <p className="text-white text-base font-medium leading-normal">El Legado de la Estrella</p>
+                            </div>
+                            <div className="flex flex-col gap-3 pb-3">
+                                <div className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl" style={{ backgroundImage: `url('https://example.com/popular2.jpg')` }}></div>
+                                <p className="text-white text-base font-medium leading-normal">Cazadores de la Noche</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="bg-white shadow-md rounded-lg p-4">
-                        <h3 className="text-xl font-bold">Juego 2</h3>
-                        <p className="text-gray-600">Descripción breve del juego.</p>
-                    </div>
-                    <div className="bg-white shadow-md rounded-lg p-4">
-                        <h3 className="text-xl font-bold">Juego 3</h3>
-                        <p className="text-gray-600">Descripción breve del juego.</p>
-                    </div>
                 </div>
-            </main>
-            <footer className="w-full bg-gray-800 text-white py-4">
-                <div className="container mx-auto px-4 text-center">
-                    <p>&copy; 2025 VideoGames Recommender App. Todos los derechos reservados.</p>
-                </div>
-            </footer>
+            </div>
         </div>
     );
 };

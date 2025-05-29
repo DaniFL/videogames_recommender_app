@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Navbar from '../components/Navbar';
 
 const UserSettings = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -56,20 +57,10 @@ const UserSettings = () => {
 
     return (
         <div
-            className="relative flex size-full h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden"
-            style={{
-                '--select-button-svg': "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(156,171,186)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e')",
-                fontFamily: "Plus Jakarta Sans, Noto Sans, sans-serif",
-            }}
+            className="relative flex size-full min-h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden"
+            style={{ fontFamily: 'Plus Jakarta Sans, Noto Sans, sans-serif' }}
         >
-            <nav className="flex justify-between items-center p-6 bg-black bg-opacity-50">
-                <h1 className="text-3xl font-bold text-indigo-500">GameRecommender</h1>
-                <div className="space-x-4">
-                    <Link to="/user-home" className="text-lg text-indigo-500 hover:text-indigo-300 font-semibold transition duration-300 ease-in-out transform hover:scale-105">Inicio</Link>
-                    <Link to="/user-settings" className="text-lg text-indigo-500 hover:text-indigo-300 font-semibold transition duration-300 ease-in-out transform hover:scale-105">Configuración</Link>
-                    <Link to="/" className="text-lg text-indigo-500 hover:text-indigo-300 font-semibold transition duration-300 ease-in-out transform hover:scale-105">Cerrar Sesión</Link>
-                </div>
-            </nav>
+            <Navbar isAuthenticated={true} />
             <div className="layout-container flex h-full grow flex-col">
                 <div className="gap-1 px-6 flex flex-1 justify-start py-5">
                     <div className="layout-content-container flex flex-col w-80 ml-8">

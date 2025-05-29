@@ -11,7 +11,7 @@ const UserSettings = () => {
     });
 
     useEffect(() => {
-        let isMounted = true; // Flag to prevent state updates if the component is unmounted
+        let isMounted = true;
 
         const fetchUserData = async () => {
             try {
@@ -40,7 +40,7 @@ const UserSettings = () => {
         fetchUserData();
 
         return () => {
-            isMounted = false; // Cleanup function to prevent state updates after unmounting
+            isMounted = false;
         };
     }, []);
 
@@ -50,14 +50,19 @@ const UserSettings = () => {
     };
 
     const handleSave = () => {
-        // Aquí puedes enviar los datos actualizados al backend
         console.log('Datos guardados:', userData);
         setIsEditing(false);
     };
 
     return (
-        <div className="fixed inset-0 min-h-screen min-w-full flex flex-col bg-gray-100">
-            <nav className="flex justify-between items-center p-6 bg-black bg-opacity-50 w-full">
+        <div
+            className="relative flex size-full h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden"
+            style={{
+                '--select-button-svg': "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(156,171,186)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e')",
+                fontFamily: "Plus Jakarta Sans, Noto Sans, sans-serif",
+            }}
+        >
+            <nav className="flex justify-between items-center p-6 bg-black bg-opacity-50">
                 <h1 className="text-3xl font-bold text-indigo-500">GameRecommender</h1>
                 <div className="space-x-4">
                     <Link to="/user-home" className="text-lg text-indigo-500 hover:text-indigo-300 font-semibold transition duration-300 ease-in-out transform hover:scale-105">Inicio</Link>
@@ -65,69 +70,150 @@ const UserSettings = () => {
                     <Link to="/" className="text-lg text-indigo-500 hover:text-indigo-300 font-semibold transition duration-300 ease-in-out transform hover:scale-105">Cerrar Sesión</Link>
                 </div>
             </nav>
-            <div className="flex-grow flex items-center justify-center w-full">
-                <div className="bg-white shadow-md rounded-lg p-6 w-96">
-                    <h2 className="text-2xl font-bold mb-4">Configuración del Usuario</h2>
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium mb-2">Avatar:</label>
-                        <img
-                            src={userData.avatar}
-                            alt="Avatar"
-                            className="w-24 h-24 rounded-full border border-gray-300 mb-2"
-                        />
-                        {isEditing && (
-                            <input
-                                type="text"
-                                name="avatar"
-                                value={userData.avatar}
-                                onChange={handleInputChange}
-                                className="w-full border border-gray-300 rounded-lg p-2"
-                            />
-                        )}
+            <div className="layout-container flex h-full grow flex-col">
+                <div className="gap-1 px-6 flex flex-1 justify-start py-5">
+                    <div className="layout-content-container flex flex-col w-80 ml-8">
+                        <div className="flex h-full min-h-[700px] flex-col justify-between bg-[#111418] p-4">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex gap-3">
+                                    <div
+                                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+                                        style={{ backgroundImage: `url(${userData.avatar})` }}
+                                    ></div>
+                                    <div className="flex flex-col">
+                                        <h1 className="text-white text-base font-medium leading-normal">{userData.username}</h1>
+                                        <p className="text-[#9cabba] text-sm font-normal leading-normal">@{userData.username.toLowerCase()}</p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Inicio</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Explorar</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Mis juegos</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Amigos</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-[#283039]">
+                                        <p className="text-white text-sm font-medium leading-normal">Perfil</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium mb-2">Nombre de Usuario:</label>
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                name="username"
-                                value={userData.username}
-                                onChange={handleInputChange}
-                                className="w-full border border-gray-300 rounded-lg p-2"
-                            />
-                        ) : (
-                            <p className="text-gray-700">{userData.username}</p>
-                        )}
+                    <div className="layout-content-container flex flex-col max-w-[960px] flex-1 mx-auto">
+                        <div className="flex flex-wrap justify-between gap-3 p-4">
+                            <p className="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Configuración del perfil</p>
+                        </div>
+                        <h3 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Información del perfil</h3>
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Nombre</p>
+                                <input
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] h-14 placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="username"
+                                    value={userData.username}
+                                    onChange={handleInputChange}
+                                />
+                            </label>
+                        </div>
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Correo electrónico</p>
+                                <input
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] h-14 placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="email"
+                                    value={userData.email}
+                                    onChange={handleInputChange}
+                                />
+                            </label>
+                        </div>
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Bio</p>
+                                <textarea
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] min-h-36 placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="bio"
+                                    value={userData.bio || ''}
+                                    onChange={handleInputChange}
+                                ></textarea>
+                            </label>
+                        </div>
+                        <h3 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Preferencias de juego</h3>
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Género favorito</p>
+                                <select
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] h-14 bg-[image:--select-button-svg] placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="favoriteGenre"
+                                    value={userData.favoriteGenre || ''}
+                                    onChange={handleInputChange}
+                                >
+                                    <option value="">Selecciona un género</option>
+                                    <option value="accion">Acción</option>
+                                    <option value="aventura">Aventura</option>
+                                    <option value="rpg">RPG</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Plataforma preferida</p>
+                                <select
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] h-14 bg-[image:--select-button-svg] placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="preferredPlatform"
+                                    value={userData.preferredPlatform || ''}
+                                    onChange={handleInputChange}
+                                >
+                                    <option value="">Selecciona una plataforma</option>
+                                    <option value="pc">PC</option>
+                                    <option value="playstation">PlayStation</option>
+                                    <option value="xbox">Xbox</option>
+                                </select>
+                            </label>
+                        </div>
+                        <h3 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Configuración de la aplicación</h3>
+                        <div className="flex items-center gap-4 bg-[#111418] px-4 min-h-[72px] py-2 justify-between">
+                            <div className="flex flex-col justify-center">
+                                <p className="text-white text-base font-medium leading-normal line-clamp-1">Notificaciones</p>
+                                <p className="text-[#9cabba] text-sm font-normal leading-normal line-clamp-2">Recibe notificaciones sobre nuevos juegos, actualizaciones y eventos.</p>
+                            </div>
+                            <div className="shrink-0">
+                                <label
+                                    className="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-[#283039] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-[#0c7ff2]"
+                                >
+                                    <div className="h-full w-[27px] rounded-full bg-white" style={{ boxShadow: 'rgba(0, 0, 0, 0.15) 0px 3px 8px, rgba(0, 0, 0, 0.06) 0px 3px 1px' }}></div>
+                                    <input type="checkbox" className="invisible absolute" />
+                                </label>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 bg-[#111418] px-4 min-h-[72px] py-2 justify-between">
+                            <div className="flex flex-col justify-center">
+                                <p className="text-white text-base font-medium leading-normal line-clamp-1">Privacidad</p>
+                                <p className="text-[#9cabba] text-sm font-normal leading-normal line-clamp-2">Controla quién puede ver tu perfil y actividad.</p>
+                            </div>
+                            <div className="shrink-0">
+                                <label
+                                    className="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-[#283039] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-[#0c7ff2]"
+                                >
+                                    <div className="h-full w-[27px] rounded-full bg-white" style={{ boxShadow: 'rgba(0, 0, 0, 0.15) 0px 3px 8px, rgba(0, 0, 0, 0.06) 0px 3px 1px' }}></div>
+                                    <input type="checkbox" className="invisible absolute" />
+                                </label>
+                            </div>
+                        </div>
+                        <div className="flex px-4 py-3 justify-end">
+                            <button
+                                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#0c7ff2] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+                                onClick={handleSave}
+                            >
+                                <span className="truncate">Guardar cambios</span>
+                            </button>
+                        </div>
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium mb-2">Correo Electrónico:</label>
-                        {isEditing ? (
-                            <input
-                                type="email"
-                                name="email"
-                                value={userData.email}
-                                onChange={handleInputChange}
-                                className="w-full border border-gray-300 rounded-lg p-2"
-                            />
-                        ) : (
-                            <p className="text-gray-700">{userData.email}</p>
-                        )}
-                    </div>
-                    {isEditing ? (
-                        <button
-                            onClick={handleSave}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
-                        >
-                            Guardar
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="bg-gray-600 text-white px-4 py-2 rounded-lg w-full"
-                        >
-                            Editar
-                        </button>
-                    )}
                 </div>
             </div>
         </div>

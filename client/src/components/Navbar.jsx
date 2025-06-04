@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { UserContext } from '../context/UserContext';
 
 const Navbar = ({ isAuthenticated }) => {
     const [menuOpen, setMenuOpen] = useState(false);
+    const { avatar } = useContext(UserContext);
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -45,7 +47,7 @@ const Navbar = ({ isAuthenticated }) => {
                     <div>
                         <div
                             className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 cursor-pointer"
-                            style={{ backgroundImage: `url('https://api.dicebear.com/9.x/adventurer/svg?seed=Usuario123')` }}
+                            style={{ backgroundImage: `url(${avatar})` }}
                             onClick={toggleMenu}
                         ></div>
                         {menuOpen && (

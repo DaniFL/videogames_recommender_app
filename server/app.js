@@ -20,7 +20,7 @@ app.use(express.json());
 // Habilitar CORS
 app.use(cors({
     origin: process.env.CLIENT_URL, // Permitir solicitudes desde el frontend
-    methods: ['GET', 'POST'], // Métodos permitidos
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'] // Encabezados permitidos
 }));
 

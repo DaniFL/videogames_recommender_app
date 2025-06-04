@@ -12,9 +12,7 @@ const UserHome = () => {
         setAvatar(e.target.files[0]);
     };
 
-    const generateAvatarUrl = (seed) => {
-        return `https://api.dicebear.com/9.x/adventurer/svg?seed=${seed}`;
-    };
+    
 
     const handleSearch = async (query) => {
         setSearch(query);

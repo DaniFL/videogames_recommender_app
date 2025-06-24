@@ -1,0 +1,441 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import Navbar from '../components/Navbar';
+
+const UserSettings = () => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [userData, setUserData] = useState({});
+    const [avatarOptions, setAvatarOptions] = useState([]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const fetchUserData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error('No token found in localStorage');
+                    return;
+                }
+
+                const response = await axios.get(`${import.meta.env.VITE_API_USER}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (isMounted && response.data) {
+                    setUserData(response.data);
+                } else {
+                    console.error('No user data returned from API');
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        const fetchAvatarOptions = async () => {
+            try {
+                const response = await fetch('https://api.dicebear.com/6.x/fun-emoji');
+                const data = await response.json();
+                setAvatarOptions(data.options || []);
+            } catch (error) {
+                console.error('Error fetching avatar options:', error);
+            }
+        };
+
+        fetchUserData();
+        fetchAvatarOptions();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUserData({ ...userData, [name]: value });
+    };
+
+    const toggleEdit = () => {
+        setIsEditing(!isEditing);
+    };
+
+    const handleSave = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('No token found in localStorage');
+                return;
+            }
+
+            const response = await fetch(`${import.meta.env.VITE_API_USER}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(userData),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Perfil actualizado correctamente:', data);
+                setIsEditing(false);
+            } else {
+                const errorData = await response.json();
+                console.error('Error al actualizar el perfil:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error al guardar los datos del perfil:', error);
+        }
+    };
+
+    const handleAvatarClick = () => {
+        if (isEditing) {
+            const avatarDropdown = document.getElementById('avatar-dropdown');
+            avatarDropdown.style.display = avatarDropdown.style.display === 'block' ? 'none' : 'block';
+        }
+    };
+
+    const handleAvatarSelect = (option) => {
+        setUserData({ ...userData, avatar: `https://api.dicebear.com/6.x/fun-emoji/svg?seed=${option}` });
+        document.getElementById('avatar-dropdown').style.display = 'none';
+    };
+
+    return (
+        <div
+            className="relative flex size-full min-h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden"
+            style={{ fontFamily: 'Plus Jakarta Sans, Noto Sans, sans-serif' }}
+        >
+            <Navbar isAuthenticated={true} />
+            <div className="layout-container flex h-full grow flex-col">
+                <div className="gap-1 px-6 flex flex-1 justify-start py-5">
+                    <div className="layout-content-container flex flex-col w-80 ml-8">
+                        <div className="flex h-full min-h-[700px] flex-col justify-between bg-[#111418] p-4">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex gap-3">
+                                    <div
+                                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+                                        style={{ backgroundImage: `url(${userData.avatar})` }}
+                                    ></div>
+                                    <div className="flex flex-col">
+                                        <h1 className="text-white text-base font-medium leading-normal">{userData.username}</h1>
+                                        <p className="text-[#9cabba] text-sm font-normal leading-normal">@{userData.username?.toLowerCase()}</p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Inicio</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Explorar</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Mis juegos</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Amigos</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-[#283039]">
+                                        <p className="text-white text-sm font-medium leading-normal">Perfil</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="layout-content-container flex flex-col max-w-[960px] flex-1 mx-auto">
+                        <div className="flex flex-wrap justify-between gap-3 p-4">
+                            <p className="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Configuración del perfil</p>
+                        </div>
+                        <h3 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Información del perfil</h3>
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Nombre</p>
+                                <input
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] h-14 placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="username"
+                                    value={userData.username}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditing}
+                                />
+                            </label>
+                        </div>
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Correo electrónico</p>
+                                <input
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] h-14 placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="email"
+                                    value={userData.email}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditing}
+                                />
+                            </label>
+                        </div>
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Avatar</p>
+                                <div className="flex flex-col items-center gap-4 px-4 py-3">
+                                    <div
+                                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-20 cursor-pointer"
+                                        style={{ backgroundImage: `url(${userData.avatar})` }}
+                                        onClick={handleAvatarClick}
+                                    ></div>
+                                    <div
+                                        id="avatar-dropdown"
+                                        className="absolute bg-[#1b2127] border border-[#3b4754] rounded-xl p-4 shadow-lg"
+                                        style={{ display: 'none', zIndex: 10 }}
+                                    >
+                                        {avatarOptions.map((option, index) => (
+                                            <div
+                                                key={index}
+                                                className="cursor-pointer text-white hover:bg-[#283039] p-2 rounded-md"
+                                                onClick={() => handleAvatarSelect(option)}
+                                            >
+                                                {option}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <div className="flex px-4 py-3 justify-end">
+                            <button
+                                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#0c7ff2] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+                                onClick={isEditing ? handleSave : toggleEdit}
+                            >
+                                <span className="truncate">{isEditing ? 'Guardar cambios' : 'Modificar perfil'}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default UserSettings;
+
+
+-------------------------------
+
+
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import Navbar from '../components/Navbar';
+
+const UserSettings = () => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [userData, setUserData] = useState({});
+    const [avatarOptions, setAvatarOptions] = useState([]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const fetchUserData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const response = await axios.get(`${import.meta.env.VITE_API_USER}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                if (isMounted && response.data) {
+                    setUserData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        // Lista de seeds predefinidas para mostrar como avatares
+        const seeds = [
+            "happy-red-1", "sad-blue-2", "funny-yellow-3", "cool-purple-4", "crazy-green-5",
+            "smile-pink-6", "mask-orange-7", "angry-grey-8", "wink-cyan-9", "love-teal-10",
+            "robotic-red-11", "ninja-blue-12", "nerdy-yellow-13", "alien-purple-14", "pirate-green-15",
+            "vampire-pink-16", "wizard-orange-17", "ghost-grey-18", "zombie-cyan-19", "superhero-teal-20",
+            "cheeky-red-21", "tired-blue-22", "blush-yellow-23", "grin-purple-24", "shy-green-25",
+            "tears-pink-26", "think-orange-27", "flat-grey-28", "mask-cyan-29", "joyful-teal-30",
+            "ouch-red-31", "smirk-blue-32", "ugh-yellow-33", "yay-purple-34", "oops-green-35",
+            "deadpan-pink-36", "mad-orange-37", "peace-grey-38", "nerd-cyan-39", "smug-teal-40",
+            "bored-red-41", "excited-blue-42", "confused-yellow-43", "sleepy-purple-44", "worried-green-45",
+            "starstruck-pink-46", "blinded-orange-47", "pokerface-grey-48", "kiss-cyan-49", "hype-teal-50",
+            "relaxed-red-51", "shocked-blue-52", "meh-yellow-53", "bashful-purple-54", "giggle-green-55",
+            "grumpy-pink-56", "sneeze-orange-57", "evil-grey-58", "chill-cyan-59", "fancy-teal-60"
+        ];
+        setAvatarOptions(seeds);
+
+        fetchUserData();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUserData({ ...userData, [name]: value });
+    };
+
+    const toggleEdit = () => {
+        setIsEditing(!isEditing);
+    };
+
+    const handleSave = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            const response = await fetch(`${import.meta.env.VITE_API_USER}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(userData),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Perfil actualizado correctamente:', data);
+                setIsEditing(false);
+            } else {
+                const errorData = await response.json();
+                console.error('Error al actualizar el perfil:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error al guardar los datos del perfil:', error);
+        }
+    };
+
+    return (
+        <div
+            className="relative flex size-full min-h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden"
+            style={{ fontFamily: 'Plus Jakarta Sans, Noto Sans, sans-serif' }}
+        >
+            <Navbar isAuthenticated={true} />
+            <div className="layout-container flex h-full grow flex-col">
+                <div className="gap-1 px-6 flex flex-1 justify-start py-5">
+                    <div className="layout-content-container flex flex-col w-80 ml-8">
+                        <div className="flex h-full min-h-[700px] flex-col justify-between bg-[#111418] p-4">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex gap-3">
+                                    <div
+                                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+                                        style={{ backgroundImage: `url(${userData.avatar})` }}
+                                    ></div>
+                                    <div className="flex flex-col">
+                                        <h1 className="text-white text-base font-medium leading-normal">{userData.username}</h1>
+                                        <p className="text-[#9cabba] text-sm font-normal leading-normal">@{userData.username?.toLowerCase()}</p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Inicio</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Explorar</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Mis juegos</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2">
+                                        <p className="text-white text-sm font-medium leading-normal">Amigos</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-[#283039]">
+                                        <p className="text-white text-sm font-medium leading-normal">Perfil</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="layout-content-container flex flex-col max-w-[960px] flex-1 mx-auto">
+                        <div className="flex flex-wrap justify-between gap-3 p-4">
+                            <p className="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Configuración del perfil</p>
+                        </div>
+
+                        <h3 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Información del perfil</h3>
+
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Nombre</p>
+                                <input
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] h-14 placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="username"
+                                    value={userData.username}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditing}
+                                />
+                            </label>
+                        </div>
+
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Correo electrónico</p>
+                                <input
+                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-0 focus:ring-0 border border-[#3b4754] bg-[#1b2127] focus:border-[#3b4754] h-14 placeholder:text-[#9cabba] p-[15px] text-base font-normal leading-normal"
+                                    name="email"
+                                    value={userData.email}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditing}
+                                />
+                            </label>
+                        </div>
+
+                        <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label className="flex flex-col min-w-40 flex-1">
+                                <p className="text-white text-base font-medium leading-normal pb-2">Avatar actual</p>
+                                <div className="flex flex-col items-center gap-4 px-4 py-3">
+                                    <div
+                                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-20"
+                                        style={{ backgroundImage: `url(${userData.avatar})` }}
+                                    ></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        {isEditing && (
+                            <div className="px-4 py-6">
+                                <h3 className="text-white text-lg font-bold pb-4">Elige tu avatar</h3>
+                                <div className="grid grid-cols-5 gap-4">
+                                    {avatarOptions.map((seed, index) => (
+                                        <img
+                                            key={index}
+                                            src={`https://api.dicebear.com/7.x/fun-emoji/svg?seed=${seed}`}
+                                            alt={`avatar-${seed}`}
+                                            className="rounded-full cursor-pointer border-2 border-transparent hover:border-[#0c7ff2] transition duration-200"
+                                            onClick={() =>
+                                                setUserData({
+                                                    ...userData,
+                                                    avatar: `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${seed}`,
+                                                })
+                                            }
+                                            width={64}
+                                            height={64}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex px-4 py-3 justify-end">
+                            <button
+                                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#0c7ff2] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+                                onClick={isEditing ? handleSave : toggleEdit}
+                            >
+                                <span className="truncate">{isEditing ? 'Guardar cambios' : 'Modificar perfil'}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default UserSettings;

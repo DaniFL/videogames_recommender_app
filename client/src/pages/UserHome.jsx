@@ -1,95 +1,83 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+// src/pages/UserHome.jsx
+
+import React, { useState, useContext } from 'react';
+import { UserContext } from '../context/UserContext';
+import RecommendationModal from '../components/RecommendationModal';
 import Navbar from '../components/Navbar';
+import HeroSection from '../components/HeroSection';
+import FeaturedGame from '../components/FeaturedGame';
+import GameList from '../components/GameList';
+import Footer from '../components/Footer';
 
 const UserHome = () => {
-    const [avatar, setAvatar] = useState(null);
-    const [favorites, setFavorites] = useState([]);
-    const [search, setSearch] = useState('');
-    const [suggestions, setSuggestions] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  // Placeholder para los datos que vendrán de tu API más adelante
+  const newReleases = [
+    {
+      id: 1,
+      name: "Cyberpunk 2077: Phantom Liberty",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/2138330/header.jpg",
+    },
+    {
+      id: 2,
+      name: "Starfield",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/1716740/header.jpg",
+    },
+    {
+      id: 3,
+      name: "Elden Ring",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg",
+    },
+  ];
 
-    const handleAvatarChange = (e) => {
-        setAvatar(e.target.files[0]);
-    };
+  const topRatedGames = [
+    {
+      id: 4,
+      name: "Portal 2",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/620/header.jpg",
+    },
+    {
+      id: 5,
+      name: "Stardew Valley",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/413150/header.jpg",
+    },
+    {
+      id: 6,
+      name: "Hades",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/1145360/header.jpg",
+    },
+  ];
 
-    
+  return (
+    <div className="flex flex-col min-h-screen bg-[#111418]">
+      {/* --- 1. BARRA DE NAVEGACIÓN --- */}
+      <Navbar />
 
-    const handleSearch = async (query) => {
-        setSearch(query);
-        if (query.length > 2) {
-            // Simulate fetching suggestions from backend
-            const response = await fetch(`/api/steam-games?query=${query}`);
-            const data = await response.json();
-            setSuggestions(data);
-        } else {
-            setSuggestions([]);
-        }
-    };
+      <main className="flex-grow">
+        {/* --- 2. SECCIÓN SUPERIOR (HERO) --- */}
+        <HeroSection onGetRecommendationClick={() => setIsModalOpen(true)} />
 
-    const handleAddFavorite = (game) => {
-        if (favorites.length < 5 && !favorites.includes(game)) {
-            setFavorites([...favorites, game]);
-        }
-    };
+        {/* --- 3. SECCIÓN INFERIOR (CONTENIDO) --- */}
+        <div className="container mx-auto px-4 py-12">
+          <FeaturedGame />
 
-    const handleRemoveFavorite = (game) => {
-        setFavorites(favorites.filter((fav) => fav !== game));
-    };
-
-    const handleSubmit = () => {
-        if (favorites.length < 5) {
-            alert('Por favor selecciona 5 videojuegos favoritos.');
-            return;
-        }
-        // Simulate submitting data to backend
-        console.log({ avatar, favorites });
-        setShowPopup(false);
-    };
-
-    return (
-        <div className="relative flex size-full min-h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden" style={{ fontFamily: 'Plus Jakarta Sans, Noto Sans, sans-serif' }}>
-            <Navbar isAuthenticated={true} />
-            <div className="layout-container flex h-full grow flex-col">
-                <div className="px-40 flex flex-1 justify-center py-5">
-                    <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
-                        <h2 className="text-white tracking-light text-[28px] font-bold leading-tight px-4 text-left pb-3 pt-5">¡Hola, Usuario!</h2>
-                        <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Recomendaciones para ti</h2>
-                        <div className="flex overflow-y-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                            <div className="flex items-stretch p-4 gap-3">
-                                {/* Example recommendation cards */}
-                                <div className="flex h-full flex-1 flex-col gap-4 rounded-lg min-w-60">
-                                    <div className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl flex flex-col" style={{ backgroundImage: `url('https://example.com/image1.jpg')` }}></div>
-                                    <div>
-                                        <p className="text-white text-base font-medium leading-normal">El Legado de la Estrella</p>
-                                        <p className="text-[#9cabba] text-sm font-normal leading-normal">RPG de acción</p>
-                                    </div>
-                                </div>
-                                <div className="flex h-full flex-1 flex-col gap-4 rounded-lg min-w-60">
-                                    <div className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl flex flex-col" style={{ backgroundImage: `url('https://example.com/image2.jpg')` }}></div>
-                                    <div>
-                                        <p className="text-white text-base font-medium leading-normal">Cazadores de la Noche</p>
-                                        <p className="text-[#9cabba] text-sm font-normal leading-normal">Aventura de mundo abierto</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Popular ahora</h2>
-                        <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
-                            {/* Example popular cards */}
-                            <div className="flex flex-col gap-3 pb-3">
-                                <div className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl" style={{ backgroundImage: `url('https://example.com/popular1.jpg')` }}></div>
-                                <p className="text-white text-base font-medium leading-normal">El Legado de la Estrella</p>
-                            </div>
-                            <div className="flex flex-col gap-3 pb-3">
-                                <div className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl" style={{ backgroundImage: `url('https://example.com/popular2.jpg')` }}></div>
-                                <p className="text-white text-base font-medium leading-normal">Cazadores de la Noche</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12">
+            <GameList title="Nuevos Lanzamientos" games={newReleases} />
+            <GameList title="Los Más Valorados" games={topRatedGames} />
+          </div>
         </div>
-    );
+      </main>
+
+      {/* --- 4. FOOTER --- */}
+      <Footer />
+
+      {/* --- MODAL (Componente flotante) --- */}
+      <RecommendationModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)}
+            />
+    </div>
+  );
 };
 
 export default UserHome;

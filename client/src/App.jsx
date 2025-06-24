@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import UserHome from './pages/UserHome';
 import UserSettings from './pages/UserSettings';
 import { UserProvider } from './context/UserContext';
+import News from './pages/News';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/user-home" element={<UserHome />} />
           <Route path="/user-settings" element={<UserSettings />} />
+          <Route path="/news" element={<News />} />
         </Routes>
       </Router>
     </UserProvider>

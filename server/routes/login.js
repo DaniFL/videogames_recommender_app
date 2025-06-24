@@ -1,3 +1,4 @@
+// routes/login.js
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -5,13 +6,6 @@ const { poolPromise } = require('../config/db');
 const router = express.Router();
 const tableName = process.env.DB_TABLE;
 
-/* Método GET para renderizar la página de inicio de sesión
-router.get('/', (req, res) => {
-    res.send('Página de inicio de sesión');
-});
-*/
-
-// Ruta para iniciar sesión
 router.post('/', async (req, res) => {
     const { email, password } = req.body;
 
@@ -36,8 +30,28 @@ router.post('/', async (req, res) => {
             return res.status(401).json({ message: 'Credenciales incorrectas' });
         }
 
-        const token = jwt.sign({ userId: user.id, username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ message: 'Inicio de sesión exitoso', token });
+        // 1. Generamos el token como antes
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+        // 2. ¡CAMBIO CLAVE! Establecemos el token en una cookie segura
+        res.cookie('token', token, {
+            httpOnly: true, // El token no será accesible desde el JavaScript del cliente
+            secure: false, // ¡IMPORTANTE! Debe ser 'false' para localhost porque no es HTTPS
+            sameSite: 'lax', // 'lax' es el valor más compatible para desarrollo local
+            path: '/' // Asegura que la cookie es válida para todas las rutas
+        });
+        
+        // 3. Enviamos una respuesta de éxito con los datos del usuario (SIN el token)
+        res.status(200).json({
+            message: 'Inicio de sesión exitoso',
+            user: {
+                id: user.id,
+                username: user.username,
+                avatar: user.avatar,
+                email: user.email
+            }
+        });
+
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
         res.status(500).json({ message: 'Error interno del servidor' });

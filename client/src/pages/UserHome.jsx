@@ -1,83 +1,76 @@
 // src/pages/UserHome.jsx
-
-import React, { useState, useContext } from 'react';
-import { UserContext } from '../context/UserContext';
-import RecommendationModal from '../components/RecommendationModal';
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
 import FeaturedGame from '../components/FeaturedGame';
 import GameList from '../components/GameList';
 import Footer from '../components/Footer';
+import RecommendationModal from '../components/RecommendationModal';
 
 const UserHome = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-  // Placeholder para los datos que vendrán de tu API más adelante
-  const newReleases = [
-    {
-      id: 1,
-      name: "Cyberpunk 2077: Phantom Liberty",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/2138330/header.jpg",
-    },
-    {
-      id: 2,
-      name: "Starfield",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/1716740/header.jpg",
-    },
-    {
-      id: 3,
-      name: "Elden Ring",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg",
-    },
-  ];
+    
+    const [newReleases, setNewReleases] = useState([]);
+    const [topSellers, setTopSellers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-  const topRatedGames = [
-    {
-      id: 4,
-      name: "Portal 2",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/620/header.jpg",
-    },
-    {
-      id: 5,
-      name: "Stardew Valley",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/413150/header.jpg",
-    },
-    {
-      id: 6,
-      name: "Hades",
-      image: "https://cdn.akamai.steamstatic.com/steam/apps/1145360/header.jpg",
-    },
-  ];
+    useEffect(() => {
+        const fetchSteamData = async () => {
+            setIsLoading(true);
+            try {
+                const response = await api.get('/steam/featured-categories');
+                
+                // Filtramos la lista de "Nuevos Lanzamientos"
+                if (response.data.new_releases) {
+                    const allNewReleases = response.data.new_releases.items;
+                    const newGamesOnly = allNewReleases.filter(item => item.type === 0);
+                    setNewReleases(newGamesOnly);
+                }
 
-  return (
-    <div className="flex flex-col min-h-screen bg-[#111418]">
-      {/* --- 1. BARRA DE NAVEGACIÓN --- */}
-      <Navbar />
+                // Filtramos la lista de "Top Ventas"
+                if (response.data.top_sellers) {
+                    const allTopSellers = response.data.top_sellers.items;
+                    // ¡AQUÍ ESTÁ LA LÓGICA CLAVE!
+                    const topGamesOnly = allTopSellers.filter(item => item.type === 0 && item.name !== "Steam Deck");
+                    setTopSellers(topGamesOnly);
+                }
 
-      <main className="flex-grow">
-        {/* --- 2. SECCIÓN SUPERIOR (HERO) --- */}
-        <HeroSection onGetRecommendationClick={() => setIsModalOpen(true)} />
+            } catch (error) {
+                console.error("Error al obtener datos de Steam:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-        {/* --- 3. SECCIÓN INFERIOR (CONTENIDO) --- */}
-        <div className="container mx-auto px-4 py-12">
-          <FeaturedGame />
+        fetchSteamData();
+    }, []);
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12">
-            <GameList title="Nuevos Lanzamientos" games={newReleases} />
-            <GameList title="Los Más Valorados" games={topRatedGames} />
-          </div>
-        </div>
-      </main>
-
-      {/* --- 4. FOOTER --- */}
-      <Footer />
-
-      {/* --- MODAL (Componente flotante) --- */}
-      <RecommendationModal 
+    // El resto del componente y el JSX se mantienen exactamente igual
+    return (
+        <div className="flex flex-col min-h-screen bg-[#111418]">
+            <Navbar />
+            <main className="flex-grow">
+                <HeroSection onGetRecommendationClick={() => setIsModalOpen(true)} />
+                <div className="container mx-auto px-4 py-12">
+                    <FeaturedGame />
+                    {isLoading ? (
+                        <div className="text-center text-white mt-16">Cargando listas de juegos...</div>
+                    ) : (
+                        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <GameList title="Nuevos Lanzamientos" games={newReleases} />
+                            <GameList title="Top Ventas" games={topSellers} />
+                        </div>
+                    )}
+                </div>
+            </main>
+            <Footer />
+            <RecommendationModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)}
             />
-    </div>
-  );
+        </div>
+    );
 };
 
 export default UserHome;

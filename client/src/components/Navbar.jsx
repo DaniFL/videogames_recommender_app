@@ -27,8 +27,7 @@ const Navbar = () => {
                     {isAuthenticated ? (
                         <>
                             <Link className="text-white text-sm font-medium leading-normal" to="/user-home">Inicio</Link>
-                            <Link className="text-white text-sm font-medium leading-normal" to="/explore">Explorar</Link>
-                            <Link className="text-white text-sm font-medium leading-normal" to="/news">Noticias</Link>
+                                                        <Link className="text-white text-sm font-medium leading-normal" to="/news">Noticias</Link>
                             <Link className="text-white text-sm font-medium leading-normal" to="/user-settings">Perfil</Link>
                         </>
                     ) : (

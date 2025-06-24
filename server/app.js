@@ -13,6 +13,7 @@ const loginRouter = require('./routes/login');
 const logoutRouter = require('./routes/logout');
 const { router: userRouter } = require('./routes/user');
 const newsRouter = require('./routes/news');
+const steamRouter = require('./routes/steam');
 const recommendationsRouter = require('./routes/recommendations');
 const { poolPromise } = require('./config/db');
 
@@ -45,6 +46,7 @@ app.use('/login', loginRouter);
 app.use('/logout', logoutRouter);
 app.use('/user', userRouter);
 app.use('/news', newsRouter);
+app.use('/steam', steamRouter);
 app.use('/recommendations', recommendationsRouter);
 
 // catch 404 and forward to error handler

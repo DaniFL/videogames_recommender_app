@@ -21,6 +21,26 @@ const authenticateToken = (req, res, next) => {
     }
 };
 
+const isAdmin = async (req, res, next) => {
+    try {
+        const userId = req.user.id; // Obtenemos el ID del middleware anterior
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('userId', userId)
+            .query('SELECT admin FROM Usuarios WHERE id = @userId');
+
+        if (result.recordset.length > 0 && result.recordset[0].admin === true) {
+            next(); // El usuario es admin, puede continuar
+        } else {
+            // El usuario no es admin o no se encontró
+            return res.status(403).json({ message: 'Acceso denegado: se requieren permisos de administrador.' });
+        }
+    } catch (error) {
+        console.error("Error en el middleware isAdmin:", error);
+        return res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
+
 // Ruta para obtener los datos del usuario
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
@@ -28,13 +48,13 @@ router.get('/profile', authenticateToken, async (req, res) => {
         const pool = await poolPromise;
         const result = await pool.request()
             .input('userId', userId)
-            .query('SELECT id, username, email, avatar FROM Usuarios WHERE id = @userId');
+            .query('SELECT id, username, email, avatar, admin FROM Usuarios WHERE id = @userId');
 
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
 
-        // Enviamos el objeto completo, que ahora sí incluye el email.
+        // Enviamos el objeto completo
         res.json(result.recordset[0]);
         
     } catch (error) {
@@ -78,5 +98,6 @@ router.put('/profile', authenticateToken, async (req, res) => {
 
 module.exports = {
     router: router,
-    authenticateToken: authenticateToken
+    authenticateToken: authenticateToken,
+    isAdmin: isAdmin
 };

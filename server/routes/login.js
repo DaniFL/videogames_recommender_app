@@ -30,25 +30,33 @@ router.post('/', async (req, res) => {
             return res.status(401).json({ message: 'Credenciales incorrectas' });
         }
 
-        // 1. Generamos el token como antes
+         // Justo después de validar al usuario, actualizamos su fecha de último login
+        const updateLoginDate = pool.request()
+            .input('userId', user.id)
+            .query('UPDATE Usuarios SET lastLoginAt = GETDATE() WHERE id = @userId');
+
+        // 1. Generamos el token 
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        // 2. ¡CAMBIO CLAVE! Establecemos el token en una cookie segura
         res.cookie('token', token, {
-            httpOnly: true, // El token no será accesible desde el JavaScript del cliente
-            secure: false, // ¡IMPORTANTE! Debe ser 'false' para localhost porque no es HTTPS
-            sameSite: 'lax', // 'lax' es el valor más compatible para desarrollo local
-            path: '/' // Asegura que la cookie es válida para todas las rutas
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            path: '/',
+            maxAge: 24 * 60 * 60 * 1000
         });
         
-        // 3. Enviamos una respuesta de éxito con los datos del usuario (SIN el token)
+        // Esperamos a que la actualización de la fecha termine (no es estrictamente necesario y luego enviamos la respuesta.
+        await updateLoginDate;
+        
         res.status(200).json({
             message: 'Inicio de sesión exitoso',
             user: {
                 id: user.id,
                 username: user.username,
                 avatar: user.avatar,
-                email: user.email
+                email: user.email,
+                admin: user.admin
             }
         });
 

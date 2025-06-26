@@ -14,17 +14,15 @@ router.get('/stats/overview', async (req, res) => {
     try {
         const pool = await poolPromise;
         const totalUsers = await pool.request().query('SELECT COUNT(*) as total FROM Usuarios');
-        // Asumiendo que tienes una tabla de juegos y otra de reseñas
-        // const totalGames = await pool.request().query('SELECT COUNT(*) as total FROM Games');
+        const totalGamesResult = await pool.request().query('SELECT COUNT(*) as total FROM Videojuegos');
         // const totalReviews = await pool.request().query('SELECT COUNT(*) as total FROM Reviews');
-        // Nueva consulta para contar usuarios únicos que han iniciado sesión hoy
         const visitorsTodayResult = await pool.request().query(
             "SELECT COUNT(DISTINCT id) as today FROM Usuarios WHERE CAST(lastLoginAt AS DATE) = CAST(GETDATE() AS DATE)"
         );
 
         res.json({
             totalUsers: totalUsers.recordset[0].total,
-            // totalGames: totalGames.recordset[0].total,
+            totalGames: totalGamesResult.recordset[0].total,
             // totalReviews: totalReviews.recordset[0].total
             visitorsToday: visitorsTodayResult.recordset[0].today
         });

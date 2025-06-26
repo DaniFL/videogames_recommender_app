@@ -1,67 +1,57 @@
+// routes/register.js
 const express = require('express');
 const bcrypt = require('bcrypt');
 const { poolPromise } = require('../config/db');
 const router = express.Router();
-const tableName = process.env.DB_TABLE;
+const { body, validationResult } = require('express-validator'); 
 
-/* Método GET para renderizar la página de registro
-router.get('/', (req, res) => {
-    res.send('Página de registro');
-});
-*/
+const tableName = process.env.DB_TABLE || 'Usuarios';
 
-// Ruta para registrar usuarios
-router.post('/', async (req, res) => {
-    const { username, email, password } = req.body;
-
-    if (!username || !email || !password) {
-        return res.status(400).json({ message: 'Faltan datos' });
-    }
-
-    try {
-        const pool = await poolPromise;
-        const userCheck = await pool.request()
-            .input('email', email)
-            .query(`SELECT * FROM ${tableName} WHERE email = @email`);
-
-        if (userCheck.recordset.length > 0) {
-            return res.status(400).json({ message: 'El email ya está registrado' });
+// Añadimos el middleware de validación a la ruta POST
+router.post('/',
+    [
+        // Reglas de validación
+        body('email', 'Por favor, introduce un email válido').isEmail().normalizeEmail(),
+        body('username', 'El nombre de usuario no puede estar vacío').notEmpty().trim().escape(),
+        body('password', 'La contraseña debe tener al menos 8 caracteres').isLength({ min: 8 })
+    ],
+    async (req, res) => {
+        // Comprobamos si hay errores de validación
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            // Si hay errores, los devolvemos al frontend
+            return res.status(400).json({ errors: errors.array() });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await pool.request()
-            .input('username', username)
-            .input('email', email)
-            .input('password', hashedPassword)
-            .query(`INSERT INTO ${tableName} (username, email, password) VALUES (@username, @email, @password)`);
+        const { username, email, password, avatar } = req.body;
 
-        res.status(201).json({ message: 'Usuario registrado exitosamente' });
-    } catch (error) {
-        console.error('Error al registrar usuario:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+        try {
+            const pool = await poolPromise;
+            const userCheck = await pool.request()
+                .input('email', email)
+                .query(`SELECT * FROM ${tableName} WHERE email = @email`);
+
+            if (userCheck.recordset.length > 0) {
+                return res.status(409).json({ message: 'El correo electrónico ya está registrado.' });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            await pool.request()
+                .input('username', username)
+                .input('email', email)
+                .input('password', hashedPassword)
+                .input('avatar', avatar)
+                .query(`INSERT INTO ${tableName} (username, email, password, avatar) VALUES (@username, @email, @password, @avatar)`);
+
+            res.status(201).json({ message: 'Usuario registrado correctamente' });
+
+        } catch (error) {
+            console.error('Error al registrar usuario:', error);
+            res.status(500).json({ message: 'Error interno del servidor' });
+        }
     }
-});
-
-// Ruta para verificar si el nombre de usuario está disponible
-router.post('/check-username', async (req, res) => {
-    const { username } = req.body;
-
-    if (!username) {
-        return res.status(400).json({ message: 'Falta el nombre de usuario' });
-    }
-
-    try {
-        const pool = await poolPromise;
-        const userCheck = await pool.request()
-            .input('username', username)
-            .query(`SELECT * FROM ${tableName} WHERE username = @username`);
-
-        const isAvailable = userCheck.recordset.length === 0;
-        res.json({ available: isAvailable });
-    } catch (error) {
-        console.error('Error al verificar el nombre de usuario:', error); // Log detailed error
-        res.status(500).json({ message: 'Error interno del servidor', error: error.message });
-    }
-});
+);
 
 module.exports = router;

@@ -37,8 +37,8 @@ const Login = () => {
             <div className="lg:flex w-1/2 hidden bg-gray-500 bg-no-repeat bg-cover relative items-center" style={{ backgroundImage: `url(${import.meta.env.VITE_IMAGE_LOGIN})` }}>
                 <div className="absolute bg-black opacity-60 inset-0 z-0"></div>
                 <div className="w-full px-24 z-10">
-                    <h1 className="text-5xl font-bold text-left tracking-wide">Welcome Back</h1>
-                    <p className="text-3xl my-4">Log in to continue your journey.</p>
+                    <h1 className="text-5xl font-bold text-left tracking-wide">Bienvenido de nuevo</h1>
+                    <p className="text-3xl my-4">Inicia sesión para continuar tu viaje.</p>
                 </div>
             </div>
             <div className="lg:w-1/2 w-full flex items-center justify-center text-center md:px-16 px-0 z-0" style={{ backgroundColor: '#161616' }}>

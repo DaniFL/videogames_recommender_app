@@ -96,6 +96,32 @@ router.put('/profile', authenticateToken, async (req, res) => {
     }
 });
 
+//Ruta para ELIMINAR la cuenta del usuario
+router.delete('/profile', authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const pool = await poolPromise;
+        await pool.request()
+            .input('userId', userId)
+            .query('DELETE FROM Usuarios WHERE id = @userId');
+
+        // Limpiamos la cookie del token para cerrar la sesión del navegador
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            path: '/',
+        });
+
+        res.status(200).json({ message: 'Cuenta eliminada correctamente.' });
+
+    } catch (error) {
+        console.error('Error al eliminar la cuenta del usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+});
+
 module.exports = {
     router: router,
     authenticateToken: authenticateToken,

@@ -62,10 +62,11 @@ const Navbar = () => {
                 <Link to={isAuthenticated ? "/user-home" : "/"} className="flex items-center gap-3 text-white">
                     <div className="size-8 text-purple-500">
                     <img 
-                            src="public\img\logo.png" // Asegúrate de que este nombre coincida con tu archivo en la carpeta /public
+                            src={import.meta.env.VITE_IMAGE_LOGO} // Asegúrate de que este nombre coincida con tu archivo en la carpeta /public
                             alt="Logo de GameFlow" 
                             className="h-full w-full object-contain" 
-                        />                    </div>
+                        />                    
+                    </div>
                     <h2 className="text-xl font-bold tracking-tighter">GameFlow</h2>
                 </Link>
 

@@ -1,22 +1,25 @@
+// src/pages/UserSettings.jsx
+
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import api from '../services/api';
 import Navbar from '../components/Navbar';
 import toast from 'react-hot-toast';
 
 const UserSettings = () => {
-    // 1. Obtenemos el estado global del UserContext
-    const { user, updateUser, isLoading: isContextLoading } = useContext(UserContext);
-
-    // 2. Estados locales para manejar el formulario
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Añadimos 'logout' a la desestructuración para que esté disponible en el componente
+    const { user, updateUser, logout, isLoading: isContextLoading } = useContext(UserContext);
+    // --- FIN DE LA CORRECCIÓN ---
+    
+    const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [userData, setUserData] = useState({ username: '', email: '', avatar: '' });
     const [avatarOptions, setAvatarOptions] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // 3. useEffect para sincronizar el estado del formulario con los datos del contexto
     useEffect(() => {
-        // Cuando el contexto tenga los datos del usuario, los cargamos en el formulario
         if (user) {
             setUserData({
                 username: user.username || '',
@@ -24,11 +27,9 @@ const UserSettings = () => {
                 avatar: user.avatar || ''
             });
         }
-
-        // Cargamos las opciones de avatares (esto se mantiene igual)
         const images = Array.from({ length: 22 }, (_, i) => `${import.meta.env.VITE_AVATARS}${i + 1}.jpg`);
         setAvatarOptions(images);
-    }, [user]); // Este efecto se ejecuta cuando el 'user' del contexto esté disponible o cambie
+    }, [user]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -39,32 +40,49 @@ const UserSettings = () => {
         setIsEditing(!isEditing);
     };
 
-    // 4. Función de guardado simplificada y segura
     const handleSave = async () => {
         try {
             const promise = api.put('/user/profile', userData);
             
-            // Usamos toast.promise para manejar los estados de carga, éxito y error
             toast.promise(promise, {
                 loading: 'Guardando cambios...',
                 success: (response) => {
-                    updateUser(response.data); // Actualizamos el contexto global
-                    setIsEditing(false); // Salimos del modo edición
-                    return 'Perfil actualizado con éxito'; // Mensaje para el toast
+                    updateUser(response.data);
+                    setIsEditing(false);
+                    return 'Perfil actualizado con éxito';
                 },
                 error: (error) => {
                     const errorMessage = error.response?.data?.message || 'Error al guardar los cambios.';
-                    return errorMessage; // Mensaje para el toast de error
+                    return errorMessage;
                 }
             });
-
         } catch (error) {
-            // Este catch es por si hay un error que no sea de la petición de red
             console.error('Error inesperado al intentar guardar:', error);
             toast.error('Ocurrió un error inesperado.');
         }
     };
-    // 5. Estado de carga para una mejor experiencia de usuario
+
+    const handleDeleteAccount = async () => {
+        setIsModalOpen(false);
+
+        toast.promise(
+            api.delete('/user/profile'),
+            {
+                loading: 'Eliminando tu cuenta...',
+                success: () => {
+                    // Ahora esta llamada a logout funcionará correctamente
+                    logout(); 
+                    navigate('/');
+                    return 'Tu cuenta ha sido eliminada con éxito.';
+                },
+                error: (err) => {
+                    return err.response?.data?.message || 'No se pudo eliminar la cuenta.';
+                }
+            }
+        );
+    };
+
+    // ... (el resto del JSX es exactamente igual)
     if (isContextLoading) {
         return (
             <div className="bg-[#111418] min-h-screen text-white flex items-center justify-center text-xl">
@@ -73,7 +91,6 @@ const UserSettings = () => {
         );
     }
     
-    // Si no hay usuario después de la carga, no se puede ver la página
     if (!user) {
         return (
             <div className="relative flex size-full min-h-screen flex-col bg-[#111418]">
@@ -85,7 +102,6 @@ const UserSettings = () => {
         );
     }
 
-    // 6. El JSX que diseñaste, ahora completamente funcional
     return (
         <div
             className="relative flex size-full min-h-screen flex-col bg-[#111418] dark group/design-root overflow-x-hidden"
@@ -110,10 +126,15 @@ const UserSettings = () => {
                                     <Link to="/user-home" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#283039] transition-colors">
                                         <p className="text-white text-sm font-medium leading-normal">Inicio</p>
                                     </Link>
-                                    {/* Añade aquí los demás enlaces que necesites */}
                                     <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-[#283039]">
                                         <p className="text-white text-sm font-medium leading-normal">Perfil</p>
                                     </div>
+                                    <button 
+                                        onClick={() => setIsModalOpen(true)}
+                                        className="flex items-center gap-3 px-3 py-2 rounded-xl text-red-500 hover:bg-red-900/40 transition-colors w-full text-left"
+                                    >
+                                        <p className="text-sm font-medium leading-normal">Eliminar Cuenta</p>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -203,6 +224,31 @@ const UserSettings = () => {
                     </div>
                 </div>
             </div>
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                    <div className="bg-[#1b2127] rounded-lg shadow-xl p-6 w-full max-w-md mx-4 border border-[#3b4754]">
+                        <h3 className="text-xl font-bold text-white mb-4">Confirmar Eliminación</h3>
+                        <p className="text-gray-300 mb-6">
+                            ¿Estás seguro de que quieres eliminar tu cuenta? 
+                            <span className="font-bold text-red-400"> Esta acción es permanente y no se puede deshacer.</span>
+                        </p>
+                        <div className="flex justify-end gap-4">
+                            <button 
+                                onClick={() => setIsModalOpen(false)}
+                                className="px-4 py-2 rounded-lg text-white bg-gray-600 hover:bg-gray-700 transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={handleDeleteAccount}
+                                className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors font-bold"
+                            >
+                                Sí, eliminar mi cuenta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -17,11 +17,28 @@ import UserHome from './pages/UserHome';
 import UserSettings from './pages/UserSettings';
 import News from './pages/News';
 import AdminDashboard from './pages/AdminDashboard';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <UserProvider>
       <Router>
+      <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#2d3748',
+              color: '#fff',
+              border: '1px solid #4a5568',
+            },
+            success: {
+              iconTheme: { primary: '#34d399', secondary: '#fff' },
+            },
+            error: {
+              iconTheme: { primary: '#f87171', secondary: '#fff' },
+            },
+          }}
+        />
         <Routes>
           {/* --- RUTAS PÚBLICAS --- */}
           {/* Si el usuario está autenticado, será redirigido a /user-home */}

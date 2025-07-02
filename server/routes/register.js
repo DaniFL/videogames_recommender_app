@@ -13,7 +13,16 @@ router.post('/',
         // Reglas de validación
         body('email', 'Por favor, introduce un email válido').isEmail().normalizeEmail(),
         body('username', 'El nombre de usuario no puede estar vacío').notEmpty().trim().escape(),
-        body('password', 'La contraseña debe tener al menos 8 caracteres').isLength({ min: 8 })
+        
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Se han añadido validaciones específicas para la contraseña
+        body('password', 'La contraseña no cumple con los requisitos.')
+            .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres.')
+            .matches(/\d/).withMessage('La contraseña debe contener al menos un número.')
+            .matches(/[a-z]/).withMessage('La contraseña debe contener al menos una letra minúscula.')
+            .matches(/[A-Z]/).withMessage('La contraseña debe contener al menos una letra mayúscula.')
+            .matches(/[@$!%*?&]/).withMessage('La contraseña debe contener al menos un símbolo: @$!%*?&')
+        // --- FIN DE LA CORRECCIÓN ---
     ],
     async (req, res) => {
         // Comprobamos si hay errores de validación

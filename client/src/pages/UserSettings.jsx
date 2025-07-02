@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import api from '../services/api';
 import Navbar from '../components/Navbar';
+import toast from 'react-hot-toast';
 
 const UserSettings = () => {
     // 1. Obtenemos el estado global del UserContext
@@ -41,21 +42,26 @@ const UserSettings = () => {
     // 4. Función de guardado simplificada y segura
     const handleSave = async () => {
         try {
-            // La llamada a la API ahora devuelve el usuario actualizado
-            const response = await api.put('/user/profile', userData);
-
-            // ¡CAMBIO CLAVE! Usamos la función del contexto para actualizar el estado global
-            updateUser(response.data);
-
-            alert('Perfil actualizado con éxito');
+            const promise = api.put('/user/profile', userData);
+            
+            // Usamos toast.promise para manejar los estados de carga, éxito y error
+            toast.promise(promise, {
+                loading: 'Guardando cambios...',
+                success: (response) => {
+                    updateUser(response.data); // Actualizamos el contexto global
+                    setIsEditing(false); // Salimos del modo edición
+                    return 'Perfil actualizado con éxito'; // Mensaje para el toast
+                },
+                error: (error) => {
+                    const errorMessage = error.response?.data?.message || 'Error al guardar los cambios.';
+                    return errorMessage; // Mensaje para el toast de error
+                }
+            });
 
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Error al guardar los cambios.';
-            console.error('Error al guardar los datos del perfil:', errorMessage);
-            alert(errorMessage);
-        } finally {
-            // Salimos del modo de edición
-            setIsEditing(false);
+            // Este catch es por si hay un error que no sea de la petición de red
+            console.error('Error inesperado al intentar guardar:', error);
+            toast.error('Ocurrió un error inesperado.');
         }
     };
     // 5. Estado de carga para una mejor experiencia de usuario

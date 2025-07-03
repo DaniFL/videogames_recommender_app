@@ -11,7 +11,8 @@ const FeaturedGame = () => (
             <p className="text-gray-400 mt-4">
                 Cada día, millones de jugadores de todo el mundo entran en batalla como uno de los más de cien héroes de Dota. Y no importa si es su décima o su milésima hora de juego: siempre hay algo nuevo que descubrir.
             </p>
-            <button className="mt-6 px-5 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 self-start">
+            <button className="mt-6 px-5 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 self-start"
+                onClick={() => window.open('https://store.steampowered.com/app/570', '_blank')}>
                 Ver en Steam
             </button>
         </div>

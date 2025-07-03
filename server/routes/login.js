@@ -37,6 +37,10 @@ router.post('/',
             if (!isMatch) {
                 return res.status(401).json({ message: 'Credenciales incorrectas' });
             }
+
+            if (user.isBlocked) {
+                return res.status(403).json({ message: 'Esta cuenta ha sido bloqueada.' });
+            }
             
             console.log(`[Backend] Usuario ${user.username} validado. Actualizando lastLoginAt...`);
             await pool.request()

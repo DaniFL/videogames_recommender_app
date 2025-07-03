@@ -1,22 +1,20 @@
 // src/components/RecommendationCard.jsx
 import React from 'react';
 
-// --- Iconos para las plataformas ---
-// Estos son los mismos que creamos antes. Los ponemos aquí para que el componente sea autónomo.
+// --- Iconos para las plataformas (sin cambios) ---
 const WindowsIcon = () => <svg title="Windows" stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 48 48" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M4.25 21.43V4.25H21.43V21.43H4.25zM26.57 21.43V4.25H43.75V21.43H26.57zM4.25 43.75V26.57H21.43V43.75H4.25zM26.57 43.75V26.57H43.75V43.75H26.57z"></path></svg>;
 const MacIcon = () => <svg title="Mac" stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M18.82,19.33a4.43,4.43,0,0,1-2.48,2.4,4.28,4.28,0,0,1-3.26-.22,1.38,1.38,0,0,0-.81-.23,1.4,1.4,0,0,0-.82.23,4.27,4.27,0,0,1-3.25.22,4.43,4.43,0,0,1-2.48-2.4A4.65,4.65,0,0,1,7,15.82a10,10,0,0,1,5-1.59,10.25,10.25,0,0,1,5,1.59A4.65,4.65,0,0,1,18.82,19.33ZM15.4,11.3a4.49,4.49,0,0,1,1.35-3.3,4.19,4.19,0,0,0-3-1.61,4.52,4.52,0,0,0-4.08,2.52,4.3,4.3,0,0,0-1.29,3.22,4.44,4.44,0,0,0,2.69,4,4.24,4.24,0,0,0,3.15.22,1.36,1.36,0,0,0,.79-.22,4.2,4.2,0,0,0,3.14-.22A4.54,4.54,0,0,0,15.4,11.3Z"></path></svg>;
 const LinuxIcon = () => <svg title="Linux" stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 48 48" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M24.03 3.97C13.02 3.97 4 12.83 4 23.63v12.4l14.42 6.04 5.61-5.6-5.6-5.63.02-.02 5.58-5.58-5.6-5.62 5.56-5.56-4.22-4.24-1.39-1.4 1.4-1.4-1.4-1.42zm11.33 30.13c-2.46-1.1-3.15-4.04-1.7-6.08l2.97-4.2s.7-.98.15-1.54l-5.63-5.63c-.56-.56-1.54.15-1.54.15l-4.2 2.97c-2.04 1.45-5-1.3-6.08-1.7l-5.06-12.7c-.55-.13-1.12-.1-1.68-.1C10.02 5.47 5.5 9.9 5.5 15.1c0 .56.03 1.13.1 1.68l12.7 5.06c.4.16 2.14 2.4 1.7 6.08l-2.97 4.2c-1.45 2.04 1.25 4.96 1.7 6.08l4.2 2.97c.6.4 1.54-.15 1.54-.15l5.63-5.63c.6-.56-.15-1.54-.15-1.54l-2.97-4.2c-1.45-2.04 1.3-5 1.7-6.08l5.06-12.7c.07-.55.1-1.12.1-1.68 0-5.2-4.52-9.63-9.82-9.63-.56 0-1.13.03-1.68.1l-5.06 12.7c-.4.16-2.4 2.14-6.08 1.7l-4.2-2.97c-2.04-1.45-4.96 1.25-6.08 1.7l-2.97 4.2c-.4.6.15 1.54.15 1.54l5.63 5.63s.98.7 1.54.15l4.2-2.97c2.04-1.45 5-1.3 6.08 1.7l12.7 5.06c.55.07 1.12.1 1.68.1 5.2 0 9.63-4.52 9.63-9.82 0-.56-.03-1.13-.1-1.68L29.7 19.3c-.16-.4-2.14-2.4-1.7-6.08l2.97-4.2c1.45-2.04-1.25-4.96-1.7-6.08l-2.97-4.2c-.6-.4-1.54.15-1.54.15l-5.63 5.63c-.56.6.15 1.54.15 1.54l4.2 2.97c2.04 1.45 5-1.3 6.08-1.7l12.7-5.06C42.4 7.5 42.5 7 42.5 6.5c0-1.4-.6-2.6-1.5-3.5-.9-.9-2.1-1.5-3.5-1.5z"></path></svg>;
 
-// El componente recibe un objeto 'game' con todos sus detalles.
 const RecommendationCard = ({ game }) => {
     
-    // Comprobamos si las categorías de plataformas están presentes en el string.
-    // Usamos ?. (optional chaining) por si la propiedad 'categories' no existiera.
-    const hasWindows = game.categories?.includes('Single-player');
-    const hasMac = game.categories?.includes('Mac');
-    const hasLinux = game.categories?.includes('Linux');
+    // La lógica para detectar plataformas es correcta.
+    const hasWindows = game.platforms?.includes('windows');
+    const hasMac = game.platforms?.includes('mac');
+    const hasLinux = game.platforms?.includes('linux');
 
-    // La tarjeta entera es un enlace que abre la página de Steam en una nueva pestaña.
+    const tags = [game.genres, game.categories].filter(Boolean).join(' | ');
+
     return (
         <a 
             href={game.link} 
@@ -29,14 +27,13 @@ const RecommendationCard = ({ game }) => {
                 alt={game.name} 
                 className="w-48 h-22 object-cover rounded-md flex-shrink-0" 
             />
-            <div className="flex flex-col justify-between">
+            <div className="flex flex-col justify-between flex-grow">
                 <div>
                     <h4 className="font-bold text-white text-lg line-clamp-1">{game.name}</h4>
-                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">{game.genres}</p>
-                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">{game.categories}</p>
+                    {tags && <p className="text-xs text-gray-400 mt-1 line-clamp-2">{tags}</p>}
                 </div>
-                <div className="flex items-center gap-3 text-gray-300 mt-2">
-                    {/* Renderizado condicional de los iconos */}
+        
+                <div className="flex items-center gap-3 text-gray-400 mt-2 text-lg">
                     {hasWindows && <WindowsIcon />}
                     {hasMac && <MacIcon />}
                     {hasLinux && <LinuxIcon />}
